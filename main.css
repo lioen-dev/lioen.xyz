@@ -1,3 +1,7 @@
+h1 {
+	color: purple
+}
+
 small {
  font-size: 13px;
 }
@@ -82,7 +86,6 @@ a:hover {
 /* Presentational Styles */
 body {
 
-	color: purple
         background: linear-gradient(90deg, #B735EC, #5F58F7);
         background-size: 110% 110%;
         animation: gradient 15s ease infinite;
