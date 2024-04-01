@@ -87,5 +87,5 @@ body {
   font-weight: 400;
   height: 100vh;
   place-items: center;
-  cursor: url('cursor.png'), auto;
+  cursor: url('images/cursor.png'), auto;
 }
