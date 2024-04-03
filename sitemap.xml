@@ -1,45 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://www.lioen.xyz/index</loc>
+        <loc>https://lioen.xyz/</loc>
         <lastmod>2024</lastmod>
-        <changefreq>early</changefreq>
-        <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.lioen.xyz/about</loc>
+        <loc>https://lioen.xyz/about</loc>
         <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://www.lioen.xyz/about</loc>
+        <loc>https://lioen.xyz/projects</loc>
         <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>1</priority>
     </url>
     <url>
-        <loc>https://www.lioen.xyz/projects</loc>
+        <loc>https://lioen.xyz/contact</loc>
         <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>1.1</priority>
     </url>
     <url>
-        <loc>https://www.lioen.xyz/contact</loc>
+        <loc>https://lioen.xyz/pgp</loc>
         <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>1.2</priority>
     </url>
     <url>
-        <loc>https://www.lioen.xyz/pgp</loc>
+        <loc>https://lioen.xyz/donate</loc>
         <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>1.3</priority>
-    </url>
-    <url>
-        <loc>https://www.lioen.xyz/donate</loc>
-        <lastmod>2024</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>1.4</priority>
     </url>
 </urlset>
