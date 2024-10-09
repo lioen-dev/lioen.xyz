@@ -4,7 +4,6 @@ body {
   background-color: #3a4068;
   padding: 0; 
   font-family: 'Varela Round';
-  text-shadow: 1px 1px 2px rgb(76, 35, 100), 0 0 1em blue, 0 0 0.2em blue;
 }
 
 .wrapper {
