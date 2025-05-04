@@ -227,61 +227,6 @@ a {
 text-decoration: underline;
 color: #f3f3f3d3;
 }
-
-.project {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.project-image {
-  margin-right: 20px;
-}
-
-.project-image img {
-  width: 150px;
-  height: auto;
-  border-radius: 5px;
-}
-
-.project-details {
-  flex: 1;
-}
-
-.project-buttons {
-  margin-top: 10px;
-}
-
-.project-buttons .button {
-  padding: 10px 15px;
-  background-color: #ffffff8f;
-  border: none;
-  border-radius: 5px;
-  margin-right: 10px;
-  text-decoration: none;
-  color: #000;
-  transition: background-color 0.3s;
-}
-
-.project-buttons .button:hover {
-  background-color: #ffffff;
-}
-
-.centerDivprojects {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translate(-50%, 0%);
-  background-color: #ffffff36;
-  height: 1150px;
-  width: 80%; /* Adjusted width for responsiveness */
-  max-width: 1000px; /* Max width for larger screens */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
 }
