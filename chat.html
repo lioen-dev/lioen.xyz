@@ -6,128 +6,71 @@
 <title>Twitch Chat Overlay</title>
 <style>
   html, body {
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     font-family: Arial, sans-serif;
-    background: #121212;
+    background: transparent;  /* FULLY transparent */
     color: white;
     height: 100%;
+    overflow: hidden;
   }
 
-  body.chat-mode {
-    background: transparent !important;
-    height: 100vh;
+  #homepage {
+    max-width: 600px;
+    margin: 5vh auto;
+    padding: 20px;
+    background: #222;
+    border-radius: 8px;
+    box-sizing: border-box;
+    display: none;
   }
 
   #chat-container {
     display: none;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    background: transparent; /* default transparent */
+    padding: 10px;
     box-sizing: border-box;
+    overflow-y: auto;
+    background: transparent; /* default transparent */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
   #chat {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-    font-size: 1.2rem;
-    box-sizing: border-box;
-    gap: 4px;
-    overflow-y: auto;
+    gap: 6px;
   }
 
   .message {
-    animation: fadeIn 0.3s ease;
     white-space: pre-wrap;
     word-break: break-word;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: rgba(0,0,0,0.5); /* fallback background for messages */
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: transparent;  /* default transparent */
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  /* We'll add background dynamically with JS */
 </style>
 </head>
 <body>
-<div id="homepage" style="
-  max-width: 600px;
-  margin: 5vh auto;
-  padding: 20px;
-  background: #222;
-  border-radius: 8px;
-  box-sizing: border-box;
-  display: none;
-">
+
+<div id="homepage" style="display:none;">
   <h1 style="margin-top:0; text-align:center;">Twitch Chat Overlay</h1>
-
-  <p style="line-height:1.5;">
-    This tool displays a Twitch channel's chat in a clean, background-free overlay. You can use it in OBS or any streaming software that supports browser sources.
-  </p>
-
-  <h3 style="margin-bottom: 0.2em;">How to use in OBS:</h3>
-  <ol style="margin-top:0; padding-left: 20px;">
-    <li>Enter the Twitch username below and click <strong>Generate URL</strong>.</li>
-    <li>Copy the generated link below.</li>
-    <li>In OBS, go to <strong>Sources → + → Browser</strong>.</li>
-    <li>Paste the link into the URL field.</li>
-  </ol>
+  <p>This tool displays a Twitch channel's chat as a transparent overlay for OBS or similar.</p>
 
   <label for="username" style="display:block; margin: 12px 0 4px;">Twitch Channel Username:</label>
-  <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" style="
-    width: 100%; padding: 8px; border: none; border-radius: 4px; font-size: 1rem; box-sizing: border-box;
-  " />
+  <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" style="width: 100%; padding: 8px; border-radius: 4px; border:none; font-size:1rem; box-sizing:border-box;" />
 
   <label for="background" style="display:block; margin: 12px 0 4px;">Background Opacity (0-100, optional):</label>
-  <input id="background" type="number" min="0" max="100" placeholder="0 = transparent" style="
-    width: 100%; padding: 8px; border: none; border-radius: 4px; font-size: 1rem; box-sizing: border-box;
-  " />
+  <input id="background" type="number" min="0" max="100" placeholder="0 = fully transparent" style="width: 100%; padding: 8px; border-radius: 4px; border:none; font-size:1rem; box-sizing:border-box;" />
 
-  <button id="generateBtn" style="
-    margin-top: 16px;
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1rem;
-    background: #9147ff;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-  ">Generate URL</button>
+  <button id="generateBtn" style="margin-top: 16px; width: 100%; padding: 10px; font-size: 1.1rem; background: #9147ff; border: none; border-radius: 5px; color: white; cursor: pointer;">Generate URL</button>
 
-  <div id="generated-url" style="
-    margin-top: 12px;
-    background: #333;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    word-break: break-word;
-    display: none;
-    user-select: all;
-    position: relative;
-  ">
+  <div id="generated-url" style="margin-top: 12px; background: #333; padding: 10px; border-radius: 5px; font-size: 0.9rem; word-break: break-word; display: none; position: relative; user-select: all;">
     <span id="url-text"></span>
-    <button id="copyBtn" style="
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      padding: 4px 8px;
-      font-size: 0.9rem;
-      background: #9147ff;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-    ">Copy</button>
+    <button id="copyBtn" style="position: absolute; top: 8px; right: 8px; padding: 4px 8px; font-size: 0.9rem; background: #9147ff; border: none; border-radius: 4px; color: white; cursor: pointer;">Copy</button>
   </div>
 </div>
 
@@ -177,31 +120,33 @@
     };
 
     copyBtn.onclick = () => {
-      const textToCopy = urlText.textContent;
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        const originalText = copyBtn.textContent;
+      navigator.clipboard.writeText(urlText.textContent).then(() => {
+        const original = copyBtn.textContent;
         copyBtn.textContent = "Copied!";
         copyBtn.disabled = true;
         setTimeout(() => {
-          copyBtn.textContent = originalText;
+          copyBtn.textContent = original;
           copyBtn.disabled = false;
         }, 1500);
-      }).catch(() => {
-        alert("Failed to copy to clipboard.");
-      });
+      }).catch(() => alert("Failed to copy URL."));
     };
-
   } else {
-    document.body.classList.add("chat-mode");
-    chatContainer.style.display = "block";
+    homepage.style.display = "none";
+    chatContainer.style.display = "flex";
 
-    // Set the background opacity of the entire overlay container
+    // Set the background of the whole chat container to transparent always:
+    chatContainer.style.background = "transparent";
+
+    // Message background color controlled by background opacity param:
+    let opacity = 0;
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
-      let opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
-      chatContainer.style.background = `rgba(0, 0, 0, ${opacity})`;
-    } else {
-      chatContainer.style.background = "transparent";
+      opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
     }
+
+    // We'll use the opacity to apply a black background behind each message:
+    // If opacity == 0, message background is transparent.
+    // Otherwise, black with that opacity.
+    const messageBgColor = opacity > 0 ? `rgba(0,0,0,${opacity})` : "transparent";
 
     const ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
 
@@ -224,7 +169,7 @@
           const tagsRaw = tagsMatch ? tagsMatch[1] : "";
           const tags = {};
           tagsRaw.split(";").forEach(p => {
-            const [k, v] = p.split("=");
+            const [k,v] = p.split("=");
             tags[k] = v;
           });
 
@@ -236,9 +181,11 @@
 
           const el = document.createElement("div");
           el.className = "message";
+          el.style.backgroundColor = messageBgColor;
           el.innerHTML = `<strong style="color:${tags.color || "white"}">${username}</strong>: ${text}`;
           chatBox.appendChild(el);
 
+          // Limit to last 20 messages
           while (chatBox.children.length > 20) {
             chatBox.removeChild(chatBox.children[0]);
           }
