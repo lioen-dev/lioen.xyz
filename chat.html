@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Twitch Chat Overlay</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+  }
+
+  #homepage {
+    display: none;
+    max-width: 600px;
+    margin: 5vh auto;
+    padding: 20px;
+    background: #222;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  label {
+    display: block;
+    margin: 12px 0 4px;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1rem;
+    background: #9147ff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #772ce8;
+  }
+
+  #generated-url {
+    margin-top: 12px;
+    background: #333;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
+
+  /* Chat overlay styling */
+  #chat-container {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  #chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+    gap: 4px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .message {
+    animation: fadeIn 0.3s ease;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div id="homepage">
+  <h1>Twitch Chat Overlay</h1>
+<p>
+  This tool displays a Twitch channel's chat in a clean, background-free overlay. You can use it in OBS or any other streaming software that supports browser sources.
+</p>
+
+<h3>📺 How to use in OBS:</h3>
+<ol>
+  <li>Enter the Twitch username below and click <strong>Generate URL</strong>.</li>
+  <li>Copy the generated link.</li>
+  <li>In OBS, go to <strong>Sources → + → Browser</strong>.</li>
+  <li>Paste the link into the URL field.</li>
+  <li>Set the width and height (e.g., 800×600 or whatever fits your layout).</li>
+  <li>Make sure <strong>Background Color → Custom Color</strong> is transparent if needed.</li>
+</ol>
+
+  <br>
+  <hr>
+  <br>
+  
+  <label for="username">Twitch Channel Username:</label>
+  <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" />
+
+  <label for="background">Background Opacity (0-100, optional):</label>
+  <input id="background" type="number" min="0" max="100" placeholder="0 = transparent" />
+
+  <button id="generateBtn">Generate URL</button>
+
+  <div id="generated-url" style="display:none;"></div>
+</div>
+
+<div id="chat-container">
+  <div id="chat"></div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const channel = urlParams.get("channel");
+  const bgParam = urlParams.get("background");
+
+  const homepage = document.getElementById("homepage");
+  const chatContainer = document.getElementById("chat-container");
+  const chatBox = document.getElementById("chat");
+  const generatedUrlDiv = document.getElementById("generated-url");
+
+  if (!channel) {
+    homepage.style.display = "block";
+
+    document.getElementById("generateBtn").onclick = () => {
+      const user = document.getElementById("username").value.trim();
+      let bg = document.getElementById("background").value.trim();
+
+      if (!user) {
+        alert("Please enter a Twitch username.");
+        return;
+      }
+
+      if (bg === "") {
+        bg = null;
+      } else {
+        bg = parseInt(bg);
+        if (isNaN(bg) || bg < 0 || bg > 100) {
+          alert("Background opacity must be 0-100.");
+          return;
+        }
+      }
+
+      let url = window.location.origin + window.location.pathname + `?channel=${encodeURIComponent(user)}`;
+      if (bg !== null) url += `&background=${bg}`;
+      generatedUrlDiv.style.display = "block";
+      generatedUrlDiv.textContent = url;
+      navigator.clipboard.writeText(url).catch(() => {});
+    };
+  } else {
+    chatContainer.style.display = "block";
+    homepage.style.display = "none";
+
+    // Apply optional background
+    if (bgParam !== null && !isNaN(parseInt(bgParam))) {
+      let opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
+      chatBox.style.background = `rgba(0,0,0,${opacity})`;
+    }
+
+    const ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+
+    ws.addEventListener("open", () => {
+      ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
+      ws.send("NICK justinfan12345");
+      ws.send(`JOIN #${channel.toLowerCase()}`);
+    });
+
+    ws.addEventListener("message", (event) => {
+      const messages = event.data.split("\r\n").filter(Boolean);
+      for (const msg of messages) {
+        if (msg.startsWith("PING")) {
+          ws.send("PONG :tmi.twitch.tv");
+          continue;
+        }
+
+        if (msg.includes("PRIVMSG")) {
+          const tagsMatch = msg.match(/^@([^ ]+) /);
+          const tagsRaw = tagsMatch ? tagsMatch[1] : "";
+          const tags = {};
+          tagsRaw.split(";").forEach(p => {
+            const [k, v] = p.split("=");
+            tags[k] = v;
+          });
+
+          const msgMatch = msg.match(/:(\w+)!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #[^ ]+ :(.+)/);
+          if (!msgMatch) continue;
+
+          const username = tags["display-name"] || msgMatch[1];
+          const text = msgMatch[2];
+
+          const el = document.createElement("div");
+          el.className = "message";
+          el.innerHTML = `<strong style="color:${tags.color || "white"}">${username}</strong>: ${text}`;
+          chatBox.appendChild(el);
+
+          while (chatBox.children.length > 20) {
+            chatBox.removeChild(chatBox.children[0]);
+          }
+
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>
