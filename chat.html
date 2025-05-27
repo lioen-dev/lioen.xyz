@@ -19,60 +19,6 @@
     background: transparent !important;
   }
 
-  #homepage {
-    display: none;
-    max-width: 600px;
-    margin: 5vh auto;
-    padding: 20px;
-    background: #222;
-    border-radius: 8px;
-    box-sizing: border-box;
-  }
-
-  h1 {
-    margin-top: 0;
-    text-align: center;
-  }
-
-  label {
-    display: block;
-    margin: 12px 0 4px;
-  }
-
-  input[type="text"], input[type="number"] {
-    width: 100%;
-    padding: 8px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-
-  button {
-    margin-top: 16px;
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1rem;
-    background: #9147ff;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background: #772ce8;
-  }
-
-  #generated-url {
-    margin-top: 12px;
-    background: #333;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    word-break: break-word;
-  }
-
   #chat-container {
     display: none;
     width: 100vw;
@@ -111,33 +57,61 @@
 </style>
 </head>
 <body>
-<div id="homepage">
-  <h1>Twitch Chat Overlay</h1>
-  <p>
-    This tool displays a Twitch channel's chat in a clean, background-free overlay. You can use it in OBS or any other streaming software that supports browser sources.
+<div id="homepage" style="
+  max-width: 600px;
+  margin: 5vh auto;
+  padding: 20px;
+  background: #222;
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: none;
+">
+  <h1 style="margin-top:0; text-align:center;">Twitch Chat Overlay</h1>
+
+  <p style="line-height:1.5;">
+    This tool displays a Twitch channel's chat in a clean, background-free overlay. You can use it in OBS or any streaming software that supports browser sources.
   </p>
 
-  <h3>How to use in OBS:</h3>
-  <ol>
+  <h3 style="margin-bottom: 0.2em;">How to use in OBS:</h3>
+  <ol style="margin-top:0; padding-left: 20px;">
     <li>Enter the Twitch username below and click <strong>Generate URL</strong>.</li>
-    <li>Copy the generated link.</li>
+    <li>Copy the generated link below.</li>
     <li>In OBS, go to <strong>Sources → + → Browser</strong>.</li>
     <li>Paste the link into the URL field.</li>
   </ol>
 
-  <br>
-  <hr>
-  <br>
+  <label for="username" style="display:block; margin: 12px 0 4px;">Twitch Channel Username:</label>
+  <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" style="
+    width: 100%; padding: 8px; border: none; border-radius: 4px; font-size: 1rem; box-sizing: border-box;
+  " />
 
-  <label for="username">Twitch Channel Username:</label>
-  <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" />
+  <label for="background" style="display:block; margin: 12px 0 4px;">Background Opacity (0-100, optional):</label>
+  <input id="background" type="number" min="0" max="100" placeholder="0 = transparent" style="
+    width: 100%; padding: 8px; border: none; border-radius: 4px; font-size: 1rem; box-sizing: border-box;
+  " />
 
-  <label for="background">Background Opacity (0-100, optional):</label>
-  <input id="background" type="number" min="0" max="100" placeholder="0 = transparent" />
+  <button id="generateBtn" style="
+    margin-top: 16px;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1rem;
+    background: #9147ff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+  ">Generate URL</button>
 
-  <button id="generateBtn">Generate URL</button>
-
-  <div id="generated-url" style="display:none;"></div>
+  <div id="generated-url" style="
+    margin-top: 12px;
+    background: #333;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    word-break: break-word;
+    display: none;
+    user-select: all;
+  "></div>
 </div>
 
 <div id="chat-container">
@@ -171,13 +145,14 @@
       } else {
         bg = parseInt(bg);
         if (isNaN(bg) || bg < 0 || bg > 100) {
-          alert("Background opacity must be 0-100.");
+          alert("Background opacity must be between 0 and 100.");
           return;
         }
       }
 
       let url = window.location.origin + window.location.pathname + `?channel=${encodeURIComponent(user)}`;
       if (bg !== null) url += `&background=${bg}`;
+
       generatedUrlDiv.style.display = "block";
       generatedUrlDiv.textContent = url;
       navigator.clipboard.writeText(url).catch(() => {});
@@ -185,7 +160,6 @@
   } else {
     document.body.classList.add("chat-mode");
     chatContainer.style.display = "block";
-    homepage.style.display = "none";
 
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
       let opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
