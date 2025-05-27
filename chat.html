@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
 <title>Twitch Chat Overlay</title>
 <style>
   html, body {
@@ -14,8 +13,10 @@
     color: white;
   }
 
-  body.chat-mode {
-    background: transparent;
+  body.chat-mode,
+  body.chat-mode #chat-container,
+  body.chat-mode #chat {
+    background: transparent !important;
   }
 
   #homepage {
@@ -91,15 +92,15 @@
     font-size: 1.2rem;
     box-sizing: border-box;
     gap: 4px;
-    background: transparent;
     overflow: hidden;
+    background: transparent;
   }
 
   .message {
     animation: fadeIn 0.3s ease;
     white-space: pre-wrap;
     word-break: break-word;
-    padding: 6px 10px;
+    padding: 4px 8px;
     border-radius: 6px;
   }
 
@@ -124,12 +125,14 @@
     <li>Paste the link into the URL field.</li>
   </ol>
 
-  <br><hr><br>
+  <br>
+  <hr>
+  <br>
 
   <label for="username">Twitch Channel Username:</label>
   <input id="username" type="text" placeholder="e.g. twitchusername" autocomplete="off" />
 
-  <label for="background">Message Background Opacity (0-100, optional):</label>
+  <label for="background">Background Opacity (0-100, optional):</label>
   <input id="background" type="number" min="0" max="100" placeholder="0 = transparent" />
 
   <button id="generateBtn">Generate URL</button>
@@ -187,13 +190,13 @@
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
       let opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
       const style = document.createElement("style");
-      style.textContent = `.message { background: rgba(0,0,0,${opacity}) !important; }`;
+      style.textContent = `
+        .message {
+          background: rgba(0, 0, 0, ${opacity}) !important;
+        }
+      `;
       document.head.appendChild(style);
     }
-
-    const escapeHTML = (str) => str.replace(/[&<>"']/g, (m) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
 
     const ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
 
@@ -224,11 +227,11 @@
           if (!msgMatch) continue;
 
           const username = tags["display-name"] || msgMatch[1];
-          const text = escapeHTML(msgMatch[2]);
+          const text = msgMatch[2];
 
           const el = document.createElement("div");
           el.className = "message";
-          el.innerHTML = `<strong style="color:${tags.color || "white"}">${escapeHTML(username)}</strong>: ${text}`;
+          el.innerHTML = `<strong style="color:${tags.color || "white"}">${username}</strong>: ${text}`;
           chatBox.appendChild(el);
 
           while (chatBox.children.length > 20) {
