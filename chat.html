@@ -11,12 +11,12 @@
     font-family: Arial, sans-serif;
     background: #121212;
     color: white;
+    height: 100%;
   }
 
-  body.chat-mode,
-  body.chat-mode #chat-container,
-  body.chat-mode #chat {
+  body.chat-mode {
     background: transparent !important;
+    height: 100vh;
   }
 
   #chat-container {
@@ -26,6 +26,8 @@
     overflow: hidden;
     padding: 0;
     margin: 0;
+    background: transparent; /* default transparent */
+    box-sizing: border-box;
   }
 
   #chat {
@@ -38,8 +40,7 @@
     font-size: 1.2rem;
     box-sizing: border-box;
     gap: 4px;
-    overflow: hidden;
-    background: transparent;
+    overflow-y: auto;
   }
 
   .message {
@@ -48,6 +49,7 @@
     word-break: break-word;
     padding: 4px 8px;
     border-radius: 6px;
+    background: rgba(0,0,0,0.5); /* fallback background for messages */
   }
 
   @keyframes fadeIn {
@@ -193,15 +195,12 @@
     document.body.classList.add("chat-mode");
     chatContainer.style.display = "block";
 
+    // Set the background opacity of the entire overlay container
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
       let opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
-      const style = document.createElement("style");
-      style.textContent = `
-        .message {
-          background: rgba(0, 0, 0, ${opacity}) !important;
-        }
-      `;
-      document.head.appendChild(style);
+      chatContainer.style.background = `rgba(0, 0, 0, ${opacity})`;
+    } else {
+      chatContainer.style.background = "transparent";
     }
 
     const ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
