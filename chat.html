@@ -8,10 +8,22 @@
   html, body {
     margin: 0; padding: 0;
     font-family: Arial, sans-serif;
-    background: transparent;  /* transparent only for chat overlay */
     color: white;
     height: 100%;
     overflow: hidden;
+  }
+
+  #homepage {
+    display:none;
+    max-width: 600px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 20px;
+    background: #222;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: white;
+    font-family: Arial, sans-serif;
   }
 
   #chat-container {
@@ -38,23 +50,13 @@
     word-break: break-word;
     padding: 6px 12px;
     border-radius: 8px;
-    background: transparent;  /* default transparent */
+    background: transparent;
   }
 </style>
 </head>
 <body>
 
-<div id="homepage" style="
-  display:none;
-  max-width: 600px;
-  margin: 5vh auto;
-  padding: 20px;
-  background: #222;
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: white;
-  font-family: Arial, sans-serif;
-">
+<div id="homepage">
   <h1 style="margin-top:0; text-align:center;">Twitch Chat Overlay</h1>
   <p>This tool displays a Twitch channel's chat as a transparent overlay for OBS or similar.</p>
 
@@ -112,6 +114,8 @@
 
   if (!channel) {
     homepage.style.display = "block";
+    chatContainer.style.display = "none";
+    document.body.style.backgroundColor = "#222";
 
     document.getElementById("generateBtn").onclick = () => {
       const user = document.getElementById("username").value.trim();
@@ -150,14 +154,13 @@
         }, 1500);
       }).catch(() => alert("Failed to copy URL."));
     };
+
   } else {
     homepage.style.display = "none";
     chatContainer.style.display = "flex";
+    document.body.style.backgroundColor = "transparent";
 
-    // The chat container background remains transparent:
-    chatContainer.style.background = "transparent";
-
-    // Background opacity for each message:
+    // Background opacity for messages
     let opacity = 0;
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
       opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
