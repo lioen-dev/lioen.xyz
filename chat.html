@@ -8,20 +8,10 @@
   html, body {
     margin: 0; padding: 0;
     font-family: Arial, sans-serif;
-    background: transparent;  /* FULLY transparent */
+    background: transparent;  /* transparent only for chat overlay */
     color: white;
     height: 100%;
     overflow: hidden;
-  }
-
-  #homepage {
-    max-width: 600px;
-    margin: 5vh auto;
-    padding: 20px;
-    background: #222;
-    border-radius: 8px;
-    box-sizing: border-box;
-    display: none;
   }
 
   #chat-container {
@@ -31,7 +21,7 @@
     padding: 10px;
     box-sizing: border-box;
     overflow-y: auto;
-    background: transparent; /* default transparent */
+    background: transparent;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -50,13 +40,21 @@
     border-radius: 8px;
     background: transparent;  /* default transparent */
   }
-
-  /* We'll add background dynamically with JS */
 </style>
 </head>
 <body>
 
-<div id="homepage" style="display:none;">
+<div id="homepage" style="
+  display:none;
+  max-width: 600px;
+  margin: 5vh auto;
+  padding: 20px;
+  background: #222;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: white;
+  font-family: Arial, sans-serif;
+">
   <h1 style="margin-top:0; text-align:center;">Twitch Chat Overlay</h1>
   <p>This tool displays a Twitch channel's chat as a transparent overlay for OBS or similar.</p>
 
@@ -68,9 +66,31 @@
 
   <button id="generateBtn" style="margin-top: 16px; width: 100%; padding: 10px; font-size: 1.1rem; background: #9147ff; border: none; border-radius: 5px; color: white; cursor: pointer;">Generate URL</button>
 
-  <div id="generated-url" style="margin-top: 12px; background: #333; padding: 10px; border-radius: 5px; font-size: 0.9rem; word-break: break-word; display: none; position: relative; user-select: all;">
+  <div id="generated-url" style="
+    margin-top: 12px;
+    background: #333;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    word-break: break-word;
+    display: none;
+    position: relative;
+    user-select: all;
+    color: white;
+  ">
     <span id="url-text"></span>
-    <button id="copyBtn" style="position: absolute; top: 8px; right: 8px; padding: 4px 8px; font-size: 0.9rem; background: #9147ff; border: none; border-radius: 4px; color: white; cursor: pointer;">Copy</button>
+    <button id="copyBtn" style="
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      background: #9147ff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    ">Copy</button>
   </div>
 </div>
 
@@ -134,18 +154,15 @@
     homepage.style.display = "none";
     chatContainer.style.display = "flex";
 
-    // Set the background of the whole chat container to transparent always:
+    // The chat container background remains transparent:
     chatContainer.style.background = "transparent";
 
-    // Message background color controlled by background opacity param:
+    // Background opacity for each message:
     let opacity = 0;
     if (bgParam !== null && !isNaN(parseInt(bgParam))) {
       opacity = Math.min(Math.max(parseInt(bgParam), 0), 100) / 100;
     }
 
-    // We'll use the opacity to apply a black background behind each message:
-    // If opacity == 0, message background is transparent.
-    // Otherwise, black with that opacity.
     const messageBgColor = opacity > 0 ? `rgba(0,0,0,${opacity})` : "transparent";
 
     const ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
@@ -185,7 +202,6 @@
           el.innerHTML = `<strong style="color:${tags.color || "white"}">${username}</strong>: ${text}`;
           chatBox.appendChild(el);
 
-          // Limit to last 20 messages
           while (chatBox.children.length > 20) {
             chatBox.removeChild(chatBox.children[0]);
           }
