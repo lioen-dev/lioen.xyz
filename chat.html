@@ -111,7 +111,22 @@
     word-break: break-word;
     display: none;
     user-select: all;
-  "></div>
+    position: relative;
+  ">
+    <span id="url-text"></span>
+    <button id="copyBtn" style="
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      background: #9147ff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    ">Copy</button>
+  </div>
 </div>
 
 <div id="chat-container">
@@ -127,6 +142,8 @@
   const chatContainer = document.getElementById("chat-container");
   const chatBox = document.getElementById("chat");
   const generatedUrlDiv = document.getElementById("generated-url");
+  const urlText = document.getElementById("url-text");
+  const copyBtn = document.getElementById("copyBtn");
 
   if (!channel) {
     homepage.style.display = "block";
@@ -153,10 +170,25 @@
       let url = window.location.origin + window.location.pathname + `?channel=${encodeURIComponent(user)}`;
       if (bg !== null) url += `&background=${bg}`;
 
+      urlText.textContent = url;
       generatedUrlDiv.style.display = "block";
-      generatedUrlDiv.textContent = url;
-      navigator.clipboard.writeText(url).catch(() => {});
     };
+
+    copyBtn.onclick = () => {
+      const textToCopy = urlText.textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "Copied!";
+        copyBtn.disabled = true;
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.disabled = false;
+        }, 1500);
+      }).catch(() => {
+        alert("Failed to copy to clipboard.");
+      });
+    };
+
   } else {
     document.body.classList.add("chat-mode");
     chatContainer.style.display = "block";
